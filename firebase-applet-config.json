@@ -1,10 +1,10 @@
 {
-  "projectId": "remixed-project-id",
-  "appId": "remixed-app-id",
-  "apiKey": "remixed-api-key",
-  "authDomain": "remixed-auth-domain",
-  "firestoreDatabaseId": "remixed-firestore-database-id",
-  "storageBucket": "remixed-storage-bucket",
-  "messagingSenderId": "remixed-messaging-sender-id",
-  "measurementId": "remixed-measurement-id"
+  "projectId": "atbsdemo",
+  "appId": "1:853583874600:web:8a3c8d7e9fe4d49c1b431d",
+  "apiKey": "AIzaSyB1oM8G3xoRGT9PIaNhiDzgjdCxdKK-HUE",
+  "authDomain": "atbsdemo.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "atbsdemo.firebasestorage.app",
+  "messagingSenderId": "853583874600",
+  "measurementId": "G-TT7R209HPS"
 }

@@ -36,6 +36,12 @@ export default function Auth() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'apple') => {
+    // Check if Firebase is configured
+    if (auth.app.options.apiKey === 'remixed-api-key' || !auth.app.options.apiKey) {
+      setError('Firebase is not fully configured. Please ensure VITE_FIREBASE_API_KEY is set or firebase-applet-config.json is updated.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -75,6 +81,13 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if Firebase is configured
+    if (auth.app.options.apiKey === 'remixed-api-key' || !auth.app.options.apiKey) {
+      setError('Firebase is not fully configured. Please update your environment variables or configuration file.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 

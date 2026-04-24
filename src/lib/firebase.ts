@@ -14,6 +14,11 @@ const envConfig = {
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || firebaseConfig.firestoreDatabaseId
 };
 
+// Log specific missing vars to console to help the user identify what's missing in AIS
+if (!envConfig.apiKey && firebaseConfig.apiKey === 'remixed-api-key') {
+  console.warn("Firebase API Key is missing in environment variables. Falling back to placeholder.");
+}
+
 // Use environment variables if at least apiKey is present, otherwise fallback to config file
 const finalConfig = envConfig.apiKey ? { ...firebaseConfig, ...envConfig } : firebaseConfig;
 
@@ -21,7 +26,17 @@ const app = initializeApp(finalConfig);
 
 // Security check: If config has placeholder values and no env vars are set, warn the user
 if (!envConfig.apiKey && finalConfig.apiKey === 'remixed-api-key') {
-  console.error("CRITICAL: Firebase is not configured. Please click 'Set up Firebase' in the chat and ACCEPT the terms to provision your database, or set VITE_FIREBASE_* environment variables.");
+  const missingVars = Object.entries(envConfig)
+    .filter(([key, value]) => !value && key !== 'measurementId' && key !== 'firestoreDatabaseId')
+    .map(([key]) => `VITE_FIREBASE_${key.toUpperCase()}`);
+  
+  if (missingVars.length > 0) {
+    console.error(`CRITICAL: Firebase is not configured in AI Studio. 
+Please add the following environment variables in the Settings menu: 
+${missingVars.join(', ')}
+
+Note: You must set these in AI Studio even if they are set on Vercel, as the preview environment is separate.`);
+  }
 }
 
 export const db = getFirestore(app, finalConfig.firestoreDatabaseId);
