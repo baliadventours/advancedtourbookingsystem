@@ -3,8 +3,28 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const envConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || firebaseConfig.firestoreDatabaseId
+};
+
+// Use environment variables if at least apiKey is present, otherwise fallback to config file
+const finalConfig = envConfig.apiKey ? { ...firebaseConfig, ...envConfig } : firebaseConfig;
+
+const app = initializeApp(finalConfig);
+
+// Security check: If config has placeholder values and no env vars are set, warn the user
+if (!envConfig.apiKey && finalConfig.apiKey === 'remixed-api-key') {
+  console.error("CRITICAL: Firebase is not configured. Please click 'Set up Firebase' in the chat and ACCEPT the terms to provision your database, or set VITE_FIREBASE_* environment variables.");
+}
+
+export const db = getFirestore(app, finalConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
 // Test connection
