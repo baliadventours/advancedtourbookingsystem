@@ -54,16 +54,24 @@ export default function Auth() {
         const profileSnap = await getDoc(profileRef);
         
         if (!profileSnap.exists()) {
-          const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
-          const isFirstUser = usersSnap.empty;
-          const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'support@daytours.com';
+          let isFirstUser = false;
+          try {
+            // This might fail if security rules restrict listing users
+            const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
+            isFirstUser = usersSnap.empty;
+          } catch (permError) {
+            console.log("Could not check for first user due to permissions, skipping auto-admin by index.", permError);
+          }
+          
+          const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
+          const isAdminRole = isFirstUser || user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
           
           await setDoc(profileRef, {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName || 'Traveler',
             photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'T')}&background=random`,
-            role: (isFirstUser || user.email === adminEmail) ? 'admin' : 'customer',
+            role: isAdminRole ? 'admin' : 'customer',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
@@ -99,16 +107,23 @@ export default function Auth() {
         const result = await createUserWithEmailAndPassword(auth, email, password);
         const user = result.user;
         
-        const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
-        const isFirstUser = usersSnap.empty;
-        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'support@daytours.com';
+        let isFirstUser = false;
+        try {
+          const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
+          isFirstUser = usersSnap.empty;
+        } catch (permError) {
+          console.log("Could not check for first user due to permissions.", permError);
+        }
+        
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
+        const isAdminRole = isFirstUser || user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
 
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
           email: user.email,
           displayName: fullName,
           photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
-          role: (isFirstUser || user.email === adminEmail) ? 'admin' : 'customer',
+          role: isAdminRole ? 'admin' : 'customer',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });

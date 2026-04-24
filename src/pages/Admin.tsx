@@ -2027,9 +2027,12 @@ export default function Admin() {
     try {
       // Hydrate selected add-ons from global list for frontend snapshots
       const selectedAddOnObjects = globalAddOns.filter(a => formData.addOnIds?.includes(a.id));
+      
+      const slugify = (text: string) => text.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
 
       const dataToSave = {
         ...formData,
+        slug: formData.slug || slugify(formData.title || 'tour'),
         addOns: selectedAddOnObjects, // Full objects for frontend
         highlights: highlightsText.split('\n').filter(line => line.trim() !== ''),
         inclusions: inclusionsText.split('\n').filter(line => line.trim() !== ''),
@@ -2386,13 +2389,17 @@ export default function Admin() {
     ];
 
     try {
-      const batchPromises = dummyTours.map(tour => 
-        addDoc(collection(db, 'tours'), {
+      const slugify = (text: string) => text.toLowerCase().replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+
+      const batchPromises = dummyTours.map(tour => {
+        const tourData = {
           ...tour,
+          slug: tour.slug || slugify(tour.title || 'tour'),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
-        })
-      );
+        };
+        return addDoc(collection(db, 'tours'), tourData);
+      });
       
       // Seed urgency points if none exist
       if (urgencyPoints.length === 0) {

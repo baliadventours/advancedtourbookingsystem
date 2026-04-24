@@ -29,12 +29,30 @@ export default function TourDetail() {
       if (!slug) return;
       setLoading(true);
       try {
+        // First try by slug field
         const q = query(collection(db, 'tours'), where('slug', '==', slug), limit(1));
         const qSnap = await getDocs(q);
         
+        let foundTour: Tour | null = null;
+        
         if (!qSnap.empty) {
           const docSnap = qSnap.docs[0];
-          setTour({ id: docSnap.id, ...docSnap.data() } as Tour);
+          foundTour = { id: docSnap.id, ...docSnap.data() } as Tour;
+        } else {
+          // If not found by slug, try by document ID directly
+          try {
+            const dRef = doc(db, 'tours', slug);
+            const dSnap = await getDoc(dRef);
+            if (dSnap.exists()) {
+              foundTour = { id: dSnap.id, ...dSnap.data() } as Tour;
+            }
+          } catch (e) {
+            console.log("Could not find by doc ID", e);
+          }
+        }
+
+        if (foundTour) {
+          setTour(foundTour);
           
           // Fetch similar tours
           const qSim = query(collection(db, 'tours'), limit(3));
@@ -46,20 +64,20 @@ export default function TourDetail() {
           setUrgencyPoints(urgencySnap.docs.map(d => ({ id: d.id, ...d.data() } as UrgencyPoint)));
         } else {
           // Check mock data
-          const mockTour = MOCK_TOURS.find(t => t.slug === slug);
+          const mockTour = MOCK_TOURS.find(t => t.slug === slug || t.id === slug);
           if (mockTour) {
             setTour(mockTour);
-            setSimilarTours(MOCK_TOURS.filter(t => t.slug !== slug).slice(0, 3));
+            setSimilarTours(MOCK_TOURS.filter(t => t.slug !== slug && t.id !== slug).slice(0, 3));
           } else {
             setTour(null);
           }
         }
       } catch (error) {
         console.error("Error fetching tour, trying mocks", error);
-        const mockTour = MOCK_TOURS.find(t => t.slug === slug);
+        const mockTour = MOCK_TOURS.find(t => t.slug === slug || t.id === slug);
         if (mockTour) {
           setTour(mockTour);
-          setSimilarTours(MOCK_TOURS.filter(t => t.slug !== slug).slice(0, 3));
+          setSimilarTours(MOCK_TOURS.filter(t => t.slug !== slug && t.id !== slug).slice(0, 3));
         } else {
           setTour(null);
         }
