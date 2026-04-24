@@ -1,0 +1,184 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && isEmailVerified() && (
+        request.auth.token.email == 'baliadventours@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Reviews (Top-level) ---
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && 
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.status == 'pending';
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+    }
+
+    // --- Settings ---
+    match /settings/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- Popups ---
+    match /popups/{popupId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- Tours ---
+    match /tours/{tourId} {
+      allow read: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+
+      // Reviews Subcollection
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if isSignedIn() && isEmailVerified() && 
+                        isValidReview(request.resource.data) &&
+                        request.resource.data.userId == request.auth.uid &&
+                        exists(/databases/$(database)/documents/tours/$(tourId));
+        allow update: if isAdmin();
+        allow delete: if isAdmin() || isOwner(resource.data.userId);
+
+        function isValidReview(review) {
+          return review.rating is number && review.rating >= 1 && review.rating <= 5 &&
+                 review.comment is string && review.comment.size() <= 1000 &&
+                 review.userId == request.auth.uid;
+        }
+      }
+    }
+
+    // Collection Group Reviews for Admin Moderation
+    match /{path=**}/reviews/{reviewId} {
+      allow read, update, delete: if isAdmin();
+    }
+
+    // --- Bookings ---
+    match /bookings/{bookingId} {
+      allow create: if isValidBooking(request.resource.data) &&
+                      (request.resource.data.userId == 'anonymous' || (isSignedIn() && request.resource.data.userId == request.auth.uid));
+      allow get: if true; // Allowed because document IDs are random/secret and needed for confirmation pages
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      allow update: if isAdmin() || (isSignedIn() && isOwner(resource.data.userId) && 
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']));
+      allow delete: if isAdmin();
+
+      function isValidBooking(booking) {
+        return booking.tourId is string &&
+               booking.date is string &&
+               booking.participants.adults is number &&
+               booking.participants.adults >= 0 &&
+               booking.customerData.fullName is string &&
+               booking.customerData.fullName.size() > 0 &&
+               booking.customerData.email.size() < 256;
+      }
+    }
+
+    // --- Users ---
+    match /users/{userId} {
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.role == 'customer';
+      allow update: if (isAdmin() || (isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])));
+      allow delete: if isAdmin();
+    }
+
+    // --- Metadata Collections ---
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /tourTypes/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /locationMeta/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /globalAddOns/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /urgencyPoints/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /pages/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // --- Coupons ---
+    match /coupons/{id} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidCoupon(request.resource.data);
+      allow update: if isAdmin() && isValidCoupon(request.resource.data);
+      allow delete: if isAdmin();
+
+      function isValidCoupon(coupon) {
+        return coupon.code is string && coupon.code.size() >= 3 &&
+               coupon.discountType in ['percentage', 'fixed'] &&
+               coupon.discountValue is number &&
+               coupon.isActive is bool &&
+               (coupon.minBookingValue == null || coupon.minBookingValue is number) &&
+               coupon.keys().hasAll(['code', 'discountType', 'discountValue', 'isActive']);
+      }
+    }
+
+    // --- Guides ---
+    match /guides/{guideId} {
+      allow read, write, delete: if isAdmin();
+    }
+
+    // --- Communication Settings ---
+    match /communicationSettings/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // --- Posts (Blog) ---
+    match /posts/{postId} {
+      allow read: if resource.data.status == 'published' || isAdmin();
+      allow write: if isAdmin() && isValidPost(request.resource.data);
+
+      function isValidPost(post) {
+        return post.title is string && post.title.size() > 0 &&
+               post.slug is string && post.slug.size() > 0 &&
+               post.content is string &&
+               post.status in ['draft', 'published'] &&
+               post.keys().hasAll(['title', 'slug', 'content', 'status']);
+      }
+    }
+  }
+}

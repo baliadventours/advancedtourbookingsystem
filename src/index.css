@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: var(--font-body, "DM Sans"), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading, "DM Sans"), ui-sans-serif, system-ui, sans-serif;
+
+  /* Map weights to the requested specific DM Sans weights (200-800) */
+  --font-weight-thin: 200;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 800;
+  
+  --color-primary: var(--primary-color, #059669);
+  --color-secondary: var(--secondary-color, #ea580c);
+}
+
+:root {
+  --primary-color: #059669;
+  --secondary-color: #ea580c;
+  --font-body: "DM Sans";
+  --font-heading: "DM Sans";
+}
+
+@layer base {
+  body {
+    @apply text-gray-900 bg-white;
+  }
+}
+
+.font-heading {
+  font-family: var(--font-heading), sans-serif;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

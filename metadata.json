@@ -1,0 +1,8 @@
+{
+  "name": "Tour Booking System by Bali Adventours",
+  "description": "Travel Booking Platform. ",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
