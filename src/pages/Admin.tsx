@@ -1022,7 +1022,7 @@ const PaymentManager = () => {
                   <label className="text-[10px] font-black text-gray-400 tracking-widest uppercase">Account Holder Name</label>
                   <input 
                     type="text"
-                    placeholder="e.g. PT Bali Adventours"
+                    placeholder="e.g. DayTours Local"
                     value={settings.accountHolder || ''}
                     onChange={e => setSettings({...settings, accountHolder: e.target.value})}
                     className="w-full rounded-xl border-2 border-gray-50 bg-gray-50/50 p-4 focus:border-primary focus:bg-white focus:outline-none transition-all font-bold text-sm"
@@ -1352,10 +1352,10 @@ const CommunicationManager = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: settings.adminNotificationEmail,
-          subject: 'Test Email - Bali AdvenTours',
+          subject: 'Test Email - DayTours',
           html: `<div style="font-family: sans-serif; padding: 20px; border: 2px solid #0d9488; border-radius: 10px;">
             <h2 style="color: #0d9488;">Email Configuration Test</h2>
-            <p>Success! This is a test email from your <strong>Bali AdvenTours</strong> website.</p>
+            <p>Success! This is a test email from your <strong>DayTours</strong> website.</p>
             <p><strong>Provider used:</strong> ${settings.emailProvider.toUpperCase()}</p>
             <p>If you're seeing this, your transactional emails are now working correctly.</p>
             <hr />
@@ -1557,7 +1557,7 @@ const CommunicationManager = () => {
                          <ul className="text-xs text-gray-600 space-y-1 list-disc pl-4 font-medium leading-relaxed">
                             <li>Turn on <strong>2-Step Verification</strong> in your Google Account settings.</li>
                             <li>Search for "App Passwords" in your account search bar.</li>
-                            <li>Select "Mail" and "Other (Custom name)" and type "Bali Website".</li>
+                            <li>Select "Mail" and "Other (Custom name)" and type "Business Website".</li>
                             <li>Copy the 16-character code and paste it here.</li>
                          </ul>
                       </div>
@@ -2410,7 +2410,7 @@ export default function Admin() {
         await addDoc(collection(db, 'pages'), {
           title: "Terms and Conditions",
           slug: "terms-and-conditions",
-          content: "Welcome to Bali Adventours. By booking with us, you agree to...",
+          content: "Welcome to DayTours. By booking with us, you agree to...",
           updatedAt: serverTimestamp()
         });
       }

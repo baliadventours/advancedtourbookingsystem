@@ -992,7 +992,7 @@ export default function Checkout() {
                           Direct Bank Transfer
                         </h4>
                         <p className="text-[10px] text-gray-500 font-bold">
-                          Bali Adventours Merchant Account
+                          DayTours Merchant Account
                         </p>
                       </div>
                     </div>

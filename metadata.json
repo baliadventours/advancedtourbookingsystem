@@ -1,6 +1,6 @@
 {
-  "name": "Tour Booking System by Bali Adventours",
-  "description": "Travel Booking Platform. ",
+  "name": "DayTours Booking System",
+  "description": "Professional Travel and Day Tour Booking Platform.",
   "requestFramePermissions": [
     "geolocation"
   ],

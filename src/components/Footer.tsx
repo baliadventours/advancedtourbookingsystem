@@ -16,7 +16,9 @@ export default function Footer() {
               ) : (
                 <>
                   <Leaf className="h-8 w-8 text-secondary" />
-                  <span>{settings?.siteName.split(' ')[0] || 'Bali'}<span className="text-secondary">{settings?.siteName.split(' ').slice(1).join('') || 'Adventours'}</span></span>
+                  <span className="text-primary font-black tracking-tighter text-2xl group flex items-center">
+                    {settings?.siteName || 'DayTours'}
+                  </span>
                 </>
               )}
             </Link>

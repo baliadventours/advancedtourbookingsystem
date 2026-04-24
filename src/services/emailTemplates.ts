@@ -1,6 +1,6 @@
 export const emailBaseTemplate = (title: string, subtitle: string, content: string, siteSettings?: any) => {
   const primaryColor = siteSettings?.primaryColor || '#ea580c';
-  const siteName = siteSettings?.siteName || 'Bali Adventours';
+  const siteName = siteSettings?.siteName || 'DayTours';
   const logo = siteSettings?.logo;
   const officeAddress = siteSettings?.officeAddress;
   const supportEmail = siteSettings?.supportEmail || 'info@baliadventours.com';

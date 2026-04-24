@@ -1,4 +1,4 @@
-# Bali Adventours - Production Deployment & Setup Guide
+# DayTours - Production Deployment & Setup Guide
 
 This guide provides a detailed, step-by-step walkthrough for deploying this travel platform to production using GitHub, Vercel, and Firebase.
 
@@ -115,6 +115,36 @@ The system is designed to automatically promote the **very first user** who regi
 
 ---
 
+## Step 6: External Integrations Setup
+
+To enable fully functional payments, email notifications, and image uploads, you need to configure the following services:
+
+### 1. PayPal (Payments)
+To accept credit cards and PayPal payments:
+1. Go to the [PayPal Developer Portal](https://developer.paypal.com/).
+2. Create an **App** in either Sandbox (testing) or Live mode.
+3. Copy your **Client ID**.
+4. In your application, navigate to **Admin > Settings > Payment**.
+5. Paste your **PayPal Client ID** and ensure "Enable PayPal" is toggled on.
+6. For testing, use a PayPal Sandbox Buyer account.
+
+### 2. Resend (Email Service)
+The platform uses Resend to send professional booking confirmations and admin notifications.
+1. Create a free account at [resend.com](https://resend.com).
+2. Generate an **API Key**.
+3. Verify your domain in the Resend dashboard to send emails from your own domain (e.g., `info@yourdomain.com`).
+4. In your project environment variables (or Vercel), set `RESEND_API_KEY`.
+5. Alternatively, you can configure these directly in the **Admin > Settings > General/Communications** panel.
+
+### 3. ImgBB (Image Uploads)
+The Rich Text Editor and Tour Gallery management require a place to host images.
+1. Sign up at [imgbb.com](https://imgbb.com/).
+2. Go to the [API documentation page](https://api.imgbb.com/) to get your **API Key**.
+3. In Vercel or your local `.env`, set: `VITE_IMGBB_API_KEY=your_key_here`.
+4. This allows the Admin panel to handle drag-and-drop image uploads seamlessly.
+
+---
+
 ## 4. Admin User Guide
 
 ### Dynamic Itineraries
@@ -129,4 +159,4 @@ The system is designed to automatically promote the **very first user** who regi
 - Use the **Settings > Static Pages** to edit your Terms and Conditions.
 
 ---
-*Bali Adventours - Professional Travel Management Solution.*
+*DayTours - Professional Travel Management Solution.*

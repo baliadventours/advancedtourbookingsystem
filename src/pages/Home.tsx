@@ -48,7 +48,7 @@ export default function Home() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 pb-20">
           <span className="mb-4 inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md text-white text-xs font-black">Explore {settings?.siteName}</span>
           <h1 className="mb-6 text-4xl font-black md:text-6xl leading-[0.95] tracking-tighter max-w-4xl">
-            Discover the Hidden <span className="text-secondary">Treasures</span> of {settings?.siteName.split(' ')[0] || 'Bali'}
+            Discover the Hidden <span className="text-secondary">Treasures</span> of the World
           </h1>
           <p className="mb-10 max-w-xl text-lg text-gray-100 font-medium leading-relaxed opacity-90">
             Curated expeditions through active volcanoes, emerald rice terraces, and ancient water temples.

@@ -56,7 +56,7 @@ export async function handleSendEmail(reqBody: any, authHeader?: string) {
     // SECURITY: If no type/booking specified, only admins can send custom emails
     if (!type || !booking) {
       const isAdminEmail = decodedToken && (
-        decodedToken.email === (process.env.PRIMARY_ADMIN_EMAIL || 'baliadventours@gmail.com') || 
+        decodedToken.email === (process.env.PRIMARY_ADMIN_EMAIL || 'support@daytours.com') || 
         decodedToken.role === 'admin'
       );
       
@@ -121,8 +121,8 @@ export async function handleSendEmail(reqBody: any, authHeader?: string) {
       // If a specific template type is provided, process it server-side
       if (type && booking) {
         const defaultTemplates: any = {
-           booking_pending: { subject: "Booking Pending - {{tourTitle}}", body: "Thank you for choosing Bali Adventours! We are currently reviewing your booking request for {{tourTitle}}. You will receive a confirmation email once it's approved.", enabled: true },
-           booking_confirmed: { subject: "Booking Confirmed! - {{tourTitle}}", body: "Great news! Your booking for {{tourTitle}} with Bali Adventours is confirmed. We can't wait to show you the best of Bali!", enabled: true },
+           booking_pending: { subject: "Booking Pending - {{tourTitle}}", body: "Thank you for choosing DayTours! We are currently reviewing your booking request for {{tourTitle}}. You will receive a confirmation email once it's approved.", enabled: true },
+           booking_confirmed: { subject: "Booking Confirmed! - {{tourTitle}}", body: "Great news! Your booking for {{tourTitle}} with DayTours is confirmed. We can't wait to show you the best of your destination!", enabled: true },
            booking_cancelled: { subject: "Booking Cancelled - #{{bookingId}}", body: "Your booking for {{tourTitle}} has been cancelled. If you have any questions, please contact our support team.", enabled: true },
            booking_status_updated: { subject: "Booking Update - #{{bookingId}}", body: "Your booking for {{tourTitle}} has been updated with new details. Please review the summary below.", enabled: true },
            booking_date_changed: { subject: "Tour Date Changed - #{{bookingId}}", body: "The date for your tour {{tourTitle}} has been updated. Please check the new schedule below.", enabled: true },
@@ -277,7 +277,7 @@ export async function handleSendEmail(reqBody: any, authHeader?: string) {
                         type === 'guide_assigned' ? 'Guide Assigned!' :
                         'System Notification';
           
-          const subtitle = type === 'booking_confirmed' ? 'Your Bali adventure is all set.' : 
+          const subtitle = type === 'booking_confirmed' ? 'Your adventure is all set.' : 
                            type === 'booking_pending' ? 'We are reviewing your request.' :
                            type === 'admin_new_booking' ? `New booking from ${booking.customerData?.fullName}` :
                            type === 'guide_assigned' ? `A guide has been assigned to your tour.` :

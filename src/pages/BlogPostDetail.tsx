@@ -138,7 +138,7 @@ export default function BlogPostDetail() {
                  <div className="h-10 w-10 rounded-full bg-emerald-600 flex items-center justify-center text-white font-black text-sm">
                    {post.author?.charAt(0) || 'B'}
                  </div>
-                 <span>{post.author || 'Bali Adventours'}</span>
+                 <span>{post.author || 'DayTours'}</span>
               </div>
               <div className="flex items-center gap-2">
                  <Icons.Calendar className="h-4 w-4" />

@@ -50,7 +50,7 @@ export default function Auth() {
         if (!profileSnap.exists()) {
           const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
           const isFirstUser = usersSnap.empty;
-          const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
+          const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'support@daytours.com';
           
           await setDoc(profileRef, {
             uid: user.uid,
@@ -88,7 +88,7 @@ export default function Auth() {
         
         const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
         const isFirstUser = usersSnap.empty;
-        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
+        const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'support@daytours.com';
 
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
@@ -114,9 +114,9 @@ export default function Auth() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <Link to="/" className="flex items-center gap-2 group mb-8">
-        <div className="flex flex-col -space-y-1 items-center">
-          <span className="text-2xl font-bold text-gray-900 leading-tight">bali</span>
-          <span className="text-2xl font-bold text-[#00A651] leading-tight">adventours</span>
+        <div className="flex items-center">
+          <span className="text-3xl font-black text-gray-900 leading-tight tracking-tighter">Day</span>
+          <span className="text-3xl font-black text-[#00A651] leading-tight tracking-tighter text-secondary">Tours</span>
         </div>
       </Link>
 

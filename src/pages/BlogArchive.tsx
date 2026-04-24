@@ -115,7 +115,7 @@ export default function BlogArchive() {
                     <span className="h-1 w-1 bg-gray-200 rounded-full" />
                     <span className="flex items-center gap-1">
                       <Icons.User className="h-3 w-3" />
-                      {post.author || 'Bali Adventours'}
+                      {post.author || 'DayTours'}
                     </span>
                   </div>
                   

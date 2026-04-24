@@ -1,8 +1,8 @@
 import { Tour, BlogPost, Review, SiteSettings, Category, TourType, LocationMeta, Guide, UrgencyPoint, Coupon, PageContent, AddOn } from '../types';
 
 export const MOCK_SITE_SETTINGS: SiteSettings = {
-  siteName: "Bali Adventours",
-  siteDescription: "Discover the hidden treasures of Bali with our curated expeditions through active volcanoes, emerald rice terraces, and ancient water temples.",
+  siteName: "DayTours",
+  siteDescription: "Discover incredible daily adventures. We curate the best local experiences, from hidden landscapes to cultural treasures.",
   siteKeywords: "Bali, tour, adventure, travel, booking, volcano, temple",
   supportEmail: "info@baliadventours.com",
   supportPhone: "+62 812 3456 7890",
@@ -64,7 +64,7 @@ export const MOCK_PAGES: PageContent[] = [
     id: 'p1', 
     title: 'About Us', 
     slug: 'about-us', 
-    content: 'Bali Adventours started with a simple belief: travel should be more than just visiting places. It should be about connection, story-telling, and respecting the environment. Founded by Wayan in 2015, we have grown from a single-van operation to a leading provider of sustainable adventures in Bali.',
+    content: 'DayTours started with a simple belief: travel should be more than just visiting places. It should be about connection, story-telling, and respecting the environment. Founded in 2015, we have grown to become a leading provider of sustainable adventures and daily experiences.',
     updatedAt: new Date()
   },
   { 

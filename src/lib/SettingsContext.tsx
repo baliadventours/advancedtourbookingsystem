@@ -9,15 +9,15 @@ interface SettingsContextType {
 }
 
 const defaultSettings: SiteSettings = {
-  siteName: 'bali adventours',
-  siteDescription: 'Premium Bali Tours & Adventure Experiences',
-  siteKeywords: 'bali, tours, adventure, trekking, mount batur, waterfalls',
-  supportEmail: 'baliadventours@gmail.com',
+  siteName: 'DayTours',
+  siteDescription: 'Premium Day Tours & Adventure Experiences',
+  siteKeywords: 'day tours, adventure, trekking, experience, local tours',
+  supportEmail: 'support@daytours.com',
   supportPhone: '+62 812-3456-7890',
   whatsappNumber: '+62 812-3456-7890',
   logoURL: '',
   faviconURL: '',
-  officeAddress: 'Jl. Raya Ubud, Gianyar, Bali, Indonesia 80571',
+  officeAddress: 'Main Street, Destination City, Region, Country',
   primaryColor: '#00A651',
   secondaryColor: '#ffffff',
   bodyFont: 'Inter',
