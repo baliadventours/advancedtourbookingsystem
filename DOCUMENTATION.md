@@ -89,7 +89,15 @@ You must create a dedicated production Firebase project.
 ### 1. Authorize Redirect URI
 - In **Firebase Console > Authentication > Settings**, add your Vercel URL (e.g., `myapp.vercel.app`) to **Authorized Domains**.
 
-### 2. Boostrap the Admin
+### 2. Seed Sample Data (Optional but Recommended)
+If you want to quickly see how the site looks with real content (Tours, Blogs, Reviews, Categories), follow these steps right after your first login:
+1. Navigate to the **Admin Dashboard**.
+2. Go to the **Settings** tab.
+3. Scroll down to the **Maintenance & Setup** section.
+4. Click **Seed Sample Database**.
+5. Wait for the success message and refresh your browser. This will populate all collections with high-quality sample data.
+
+### 3. Boostrap the Admin
 The system is designed to automatically promote the **very first user** who registers to `admin` role. 
 1. Open your live site.
 2. Click **Login > Sign Up**.
@@ -97,7 +105,7 @@ The system is designed to automatically promote the **very first user** who regi
 4. If you are the first user in the database, you will automatically get Admin access.
 5. Alternatively, once you log in, you can go to the Firebase Console, go to the `users` collection, find your user ID, and change `role` from `customer` to `admin`.
 
-### 3. Configure Site Settings
+### 4. Configure Site Settings
 1. Log in and go to the **Admin Dashboard** (accessible via the profile menu).
 2. Go to the **Settings** tab.
 3. Ensure **Resend** is selected as the provider.
