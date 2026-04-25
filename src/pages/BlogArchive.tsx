@@ -15,14 +15,20 @@ export default function BlogArchive() {
   useEffect(() => {
     const q = query(
       collection(db, 'posts'),
-      where('status', '==', 'published'),
-      orderBy('createdAt', 'desc')
+      where('status', '==', 'published')
     );
 
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         if (!snapshot.empty) {
-          setPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+          const fetchedPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+          // Sort in-memory to avoid index requirement
+          fetchedPosts.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return timeB - timeA;
+          });
+          setPosts(fetchedPosts);
         } else {
           setPosts(MOCK_BLOGS);
         }

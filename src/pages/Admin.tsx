@@ -1,6 +1,7 @@
 import { useState, useEffect, FormEvent, ChangeEvent, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { db, auth } from '../lib/firebase';
+import { useNavigate } from 'react-router-dom';
+import { db, auth, isAdminUser } from '../lib/firebase';
 import { 
   collection, addDoc, updateDoc, deleteDoc, 
   doc, onSnapshot, serverTimestamp, query, orderBy,
@@ -1695,7 +1696,47 @@ const CommunicationManager = () => {
 };
 
 export default function Admin() {
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const navigate = useNavigate();
+
   const [tours, setTours] = useState<Tour[]>([]);
+  // ... other existing state ...
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      if (authUser) {
+        const unsubsProfile = onSnapshot(doc(db, 'users', authUser.uid), (snap) => {
+          if (snap.exists()) {
+            setProfile({ uid: snap.id, ...snap.data() } as UserProfile);
+          }
+          setAuthLoading(false);
+        });
+        return () => unsubsProfile();
+      } else {
+        setAuthLoading(false);
+        navigate('/login');
+      }
+    });
+    return unsubscribe;
+  }, [navigate]);
+
+  const isAdmin = isAdminUser(user?.email, profile?.role);
+
+  useEffect(() => {
+    // Admin elevation logic
+    if (user && isAdmin && profile && profile.role !== 'admin') {
+       const userRef = doc(db, 'users', user.uid);
+       updateDoc(userRef, { role: 'admin', updatedAt: serverTimestamp() }).catch(console.error);
+    }
+  }, [user, isAdmin, profile]);
+
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!isAdmin) return null; // Or show unauthorized message before redirect
+
+  // ... rest of the component ...
   const [categories, setCategories] = useState<Category[]>([]);
   const [tourTypes, setTourTypes] = useState<TourType[]>([]);
   const [locations, setLocations] = useState<LocationMeta[]>([]);
@@ -1764,29 +1805,6 @@ export default function Admin() {
         setFormData(prev => ({ ...prev, slug: generatedSlug }));
     }
   }, [formData.title, editingId]);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
-      if (user && user.email === adminEmail) {
-        const userRef = doc(db, 'users', user.uid);
-        try {
-          const snap = await getDoc(userRef);
-          if (!snap.exists() || snap.data()?.role !== 'admin') {
-            await setDoc(userRef, {
-              email: user.email,
-              role: 'admin',
-              updatedAt: serverTimestamp()
-            }, { merge: true });
-            console.log("Admin record created/updated");
-          }
-        } catch (err) {
-          console.error("Error ensuring admin record:", err);
-        }
-      }
-    });
-    return unsubscribe;
-  }, []);
 
   useEffect(() => {
     const q = query(collection(db, 'tours'), orderBy('createdAt', 'desc'));

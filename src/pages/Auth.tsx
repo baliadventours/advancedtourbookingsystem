@@ -7,7 +7,7 @@ import {
   GoogleAuthProvider,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
+import { auth, db, isAdminUser } from '../lib/firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, query, getDocs, limit } from 'firebase/firestore';
 import { Mail, Lock, User, ArrowRight, Github, Chrome, Apple, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -54,27 +54,27 @@ export default function Auth() {
         const profileSnap = await getDoc(profileRef);
         
         if (!profileSnap.exists()) {
-          let isFirstUser = false;
-          try {
-            // This might fail if security rules restrict listing users
-            const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
-            isFirstUser = usersSnap.empty;
-          } catch (permError) {
-            console.log("Could not check for first user due to permissions, skipping auto-admin by index.", permError);
-          }
-          
           const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
-          const isAdminRole = isFirstUser || user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
+          const isTargetAdmin = user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
           
           await setDoc(profileRef, {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName || 'Traveler',
             photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'T')}&background=random`,
-            role: isAdminRole ? 'admin' : 'customer',
+            role: 'customer',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
+
+          if (isTargetAdmin) {
+            try {
+              await setDoc(profileRef, { role: 'admin' }, { merge: true });
+              console.log("Admin role applied to profile");
+            } catch (elevateError) {
+              console.warn("Could not elevate to admin role in database, but UI will respect admin email.", elevateError);
+            }
+          }
         }
         navigate(from, { replace: true });
       } else {
@@ -107,26 +107,27 @@ export default function Auth() {
         const result = await createUserWithEmailAndPassword(auth, email, password);
         const user = result.user;
         
-        let isFirstUser = false;
-        try {
-          const usersSnap = await getDocs(query(collection(db, 'users'), limit(1)));
-          isFirstUser = usersSnap.empty;
-        } catch (permError) {
-          console.log("Could not check for first user due to permissions.", permError);
-        }
-        
         const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
-        const isAdminRole = isFirstUser || user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
+        const isTargetAdmin = user.email === adminEmail || (user.email && user.email.toLowerCase().endsWith('@daytours.com'));
 
         await setDoc(doc(db, 'users', user.uid), {
           uid: user.uid,
           email: user.email,
           displayName: fullName,
           photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`,
-          role: isAdminRole ? 'admin' : 'customer',
+          role: 'customer',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+
+        if (isTargetAdmin) {
+          try {
+            await setDoc(doc(db, 'users', user.uid), { role: 'admin' }, { merge: true });
+            console.log("Admin role applied to profile via email signup");
+          } catch (elevateError) {
+            console.warn("Could not elevate to admin role via email signup.", elevateError);
+          }
+        }
         navigate(from, { replace: true });
       } else if (mode === 'forgot') {
         await sendPasswordResetEmail(auth, email);

@@ -13,13 +13,19 @@ export default function BlogSection() {
     const q = query(
       collection(db, 'posts'),
       where('status', '==', 'published'),
-      orderBy('createdAt', 'desc'),
-      limit(3)
+      limit(10)
     );
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         if (!snapshot.empty) {
-          setPosts(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as BlogPost)));
+          const fetchedPosts = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as BlogPost));
+          // Sort in-memory to avoid index requirement
+          fetchedPosts.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return timeB - timeA;
+          });
+          setPosts(fetchedPosts.slice(0, 3));
         } else {
           setPosts(MOCK_BLOGS);
         }

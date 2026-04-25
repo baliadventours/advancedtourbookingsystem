@@ -13,13 +13,19 @@ export default function ReviewSlider() {
     const q = query(
       collection(db, 'reviews'),
       where('status', '==', 'approved'),
-      orderBy('createdAt', 'desc'),
-      limit(3)
+      limit(10)
     );
     const unsubscribe = onSnapshot(q, 
       (snapshot) => {
         if (!snapshot.empty) {
-          setReviews(snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Review)));
+          const fetchedReviews = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Review));
+          // Sort in-memory to avoid index requirement
+          fetchedReviews.sort((a, b) => {
+            const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+            return timeB - timeA;
+          });
+          setReviews(fetchedReviews.slice(0, 3));
         } else {
           setReviews(MOCK_REVIEWS);
         }

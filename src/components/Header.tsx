@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { auth, db } from '../lib/firebase';
+import { auth, db, isAdminUser } from '../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { User, Shield, Menu, X, Leaf, Search, Instagram, Facebook, Twitter, Phone, Mail, HelpCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { UserProfile } from '../types';
@@ -16,33 +16,26 @@ export default function Header() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       setUser(authUser);
       if (authUser) {
-        const docRef = doc(db, 'users', authUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
-        } else {
-          // New user registration fallback
-          const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
-          const newProfile: Partial<UserProfile> = {
-            uid: authUser.uid,
-            email: authUser.email || '',
-            displayName: authUser.displayName || 'Traveler',
-            photoURL: authUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser.displayName || 'T')}&background=random`,
-            role: authUser.email === adminEmail ? 'admin' : 'customer',
-            createdAt: serverTimestamp(),
-          };
-          await setDoc(docRef, newProfile);
-          setProfile(newProfile as UserProfile);
-        }
+        // Use onSnapshot for real-time profile updates
+        const unsubsProfile = onSnapshot(doc(db, 'users', authUser.uid), (snap) => {
+          if (snap.exists()) {
+            setProfile({ uid: snap.id, ...snap.data() } as UserProfile);
+          } else {
+            setProfile(null);
+          }
+        });
+        return () => unsubsProfile();
       } else {
         setProfile(null);
       }
     });
     return unsubscribe;
   }, []);
+
+  const isAdmin = isAdminUser(user?.email, profile?.role);
 
   const handleLogin = () => {
     navigate('/login');
@@ -128,7 +121,7 @@ export default function Header() {
             <Search className="h-4 w-4" />
           </button>
           
-          {profile?.role === 'admin' && (
+          {isAdmin && (
             <Link to="/admin" className="p-2 text-gray-900 hover:text-amber-600">
               <Shield className="h-4 w-4" />
             </Link>
@@ -160,7 +153,7 @@ export default function Header() {
             <Link to="/blog" className="text-xs font-black tracking-[0.3em] text-gray-900">Blog</Link>
             <Link to="/about" className="text-xs font-black tracking-[0.3em] text-gray-900">About</Link>
             <Link to="/contact" className="text-xs font-black tracking-[0.3em] text-gray-900">Contact</Link>
-            {profile?.role === 'admin' && (
+            {isAdmin && (
               <Link to="/admin" className="text-xs font-black tracking-[0.3em] text-amber-600">Admin Panel</Link>
             )}
             {user ? (

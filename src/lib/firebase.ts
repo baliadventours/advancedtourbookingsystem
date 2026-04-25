@@ -42,6 +42,12 @@ Note: You must set these in AI Studio even if they are set on Vercel, as the pre
 export const db = getFirestore(app, finalConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
+export const isAdminUser = (email: string | null | undefined, profileRole?: string) => {
+  if (!email) return false;
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'baliadventours@gmail.com';
+  return email === adminEmail || email.toLowerCase().endsWith('@daytours.com') || profileRole === 'admin';
+};
+
 // Test connection
 async function testConnection() {
   try {

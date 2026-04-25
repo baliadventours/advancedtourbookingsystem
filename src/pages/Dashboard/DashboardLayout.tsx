@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { auth, db } from '../../lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { UserProfile } from '../../types';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
@@ -29,18 +29,25 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser) => {
       if (authUser) {
         setUser(authUser);
-        const docRef = doc(db, 'users', authUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setProfile(docSnap.data() as UserProfile);
-        }
+        const unsubsProfile = onSnapshot(doc(db, 'users', authUser.uid), (snap) => {
+          if (snap.exists()) {
+            setProfile({ uid: snap.id, ...snap.data() } as UserProfile);
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        }, (err) => {
+          console.error("Dashboard profile watch error:", err);
+          setLoading(false);
+        });
+        return () => unsubsProfile();
       } else {
         navigate('/login', { state: { from: window.location } });
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsubscribe;
   }, [navigate]);
