@@ -1702,7 +1702,6 @@ export default function Admin() {
   const navigate = useNavigate();
 
   const [tours, setTours] = useState<Tour[]>([]);
-  // ... other existing state ...
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -1733,10 +1732,6 @@ export default function Admin() {
     }
   }, [user, isAdmin, profile]);
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  if (!isAdmin) return null; // Or show unauthorized message before redirect
-
-  // ... rest of the component ...
   const [categories, setCategories] = useState<Category[]>([]);
   const [tourTypes, setTourTypes] = useState<TourType[]>([]);
   const [locations, setLocations] = useState<LocationMeta[]>([]);
@@ -1859,6 +1854,9 @@ export default function Admin() {
       unsubscribeGuides();
     };
   }, []);
+
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (!isAdmin) return <div className="min-h-screen flex items-center justify-center bg-gray-50 font-black text-xs uppercase tracking-[0.3em] text-red-500">Access Denied</div>;
 
   const handleAssignToGuide = async (booking: Booking, guide: Guide) => {
     try {
